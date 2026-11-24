@@ -86,6 +86,12 @@ canvas#game { position: fixed; inset: 0; display: block; }
   color: transparent; -webkit-text-stroke: 1.5px var(--a);
   text-shadow: 0 0 40px color-mix(in srgb, var(--a) 40%, transparent);
 }
+.splash-img {
+  width: min(640px, 88vw); height: auto; display: block;
+  animation: splash-pulse calc(60s / 118) ease-out infinite;
+}
+@keyframes splash-pulse { 0% { transform: scale(1.02); filter: brightness(1.15); } 35% { transform: none; filter: none; } }
+@media (prefers-reduced-motion: reduce) { .splash-img { animation: none; } }
 .hint { color: var(--muted); font-size: 14px; letter-spacing: 0.04em; margin: 0; }
 
 .panel {

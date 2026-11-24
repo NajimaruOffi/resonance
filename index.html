@@ -4,9 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Résonance</title>
-  <meta name="description" content="Roguelite rythmique : ton arsenal est un séquenceur, ta bande-son est ton build." />
+  <meta name="description" content="Roguelite musical gratuit sur navigateur : chaque arme est un instrument, chaque partie devient un morceau à télécharger. Studio de création inclus." />
   <meta name="theme-color" content="#05040d" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2305040d'/%3E%3Cpath d='M16 5 L26 25 L16 20 L6 25 Z' fill='none' stroke='%2329f0ff' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- Aperçu des liens (Discord, réseaux sociaux, messageries) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Résonance" />
+  <meta property="og:title" content="Résonance — ton arsenal est un séquenceur" />
+  <meta property="og:description" content="Roguelite musical gratuit sur navigateur : chaque arme est un instrument, chaque partie devient un vrai morceau à télécharger (WAV / MIDI)." />
+  <meta property="og:url" content="https://najimaruoffi.github.io/resonance/" />
+  <meta property="og:image" content="https://najimaruoffi.github.io/resonance/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Logo Résonance sur une arène néon : ton arsenal est un séquenceur" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://najimaruoffi.github.io/resonance/assets/og-image.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Unbounded:wght@500;800;900&display=swap" rel="stylesheet" />
@@ -46,7 +62,8 @@
   <!-- ─────────────── Écran d'accueil (déclenche l'audio) ─────────────── -->
   <section id="screen-splash" class="screen active">
     <div class="splash">
-      <div class="splash-logo">RÉSONANCE</div>
+      <img class="splash-img" src="assets/logo.webp" width="960" height="401" alt="Résonance" />
+      <noscript><div class="splash-logo">RÉSONANCE</div></noscript>
       <button class="btn btn-primary" id="btn-enter">Entrer</button>
       <p class="hint">🎧 Casque recommandé — tout le son est synthétisé en direct</p>
     </div>

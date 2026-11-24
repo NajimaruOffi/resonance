@@ -1,0 +1,14 @@
+{
+  "name": "Résonance",
+  "short_name": "Résonance",
+  "description": "Roguelite musical : ton arsenal est un séquenceur, ta bande-son est ton build.",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#05040d",
+  "theme_color": "#05040d",
+  "icons": [
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

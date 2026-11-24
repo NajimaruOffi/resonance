@@ -1,6 +1,15 @@
-# RÉSONANCE
+<p align="center">
+  <a href="https://najimaruoffi.github.io/resonance/"><img src="assets/banner.jpg" alt="Résonance — ton arsenal est un séquenceur. Roguelite musical, gratuit, sur navigateur." width="100%" /></a>
+</p>
 
-> **Ton arsenal est un séquenceur. Ta bande-son est ton build.**
+<h1 align="center">RÉSONANCE</h1>
+
+<p align="center"><b>Ton arsenal est un séquenceur. Ta bande-son est ton build.</b></p>
+
+<p align="center">
+  <a href="https://najimaruoffi.github.io/resonance/"><b>▶ JOUER GRATUITEMENT</b></a>
+  &nbsp;·&nbsp; Navigateur &nbsp;·&nbsp; Clavier + souris &nbsp;·&nbsp; Casque conseillé
+</p>
 
 Résonance est un roguelite d'arène, jouable dans le navigateur, où **chaque arme est une piste d'un
 séquenceur 16 pas**. Le canon tire sur la grosse caisse, les aiguilles sur le charleston, l'onde de
@@ -10,10 +19,9 @@ entre deux vagues, tu places de nouvelles notes sur la grille, tu débloques des
 modifies leur son. Chaque partie devient un vrai morceau structuré, que tu peux écouter,
 retravailler dans le **Studio de création** et exporter en **.wav** ou en **.mid**.
 
-### ▶ [Jouer en ligne](https://najimaruoffi.github.io/resonance/) — casque recommandé
-
-- **Zéro dépendance, zéro asset** : tout le son est synthétisé en direct avec la Web Audio API,
-  tous les visuels sont dessinés en Canvas 2D.
+- **Zéro dépendance** : tout le son est synthétisé en direct avec la Web Audio API (aucun
+  sample), tous les visuels du jeu sont dessinés en Canvas 2D. Les seules images sont celles
+  de l'identité visuelle (logo, bannière, affiche).
 - **Vanilla JS, modules ES** : aucun framework, aucune étape de build.
 
 ## Lancer le jeu en local
@@ -118,7 +126,8 @@ toujours **le prochain objectif** (prochain kit, prochain achat possible au Stud
 
 ```
 Resonance/
-├── index.html            écrans + HUD (DOM)
+├── index.html            écrans + HUD (DOM), aperçu des liens (Open Graph)
+├── assets/               logo, bannière, affiche, icônes, image d'aperçu
 ├── css/style.css         interface néon, thème recoloré par secteur (variables CSS)
 ├── serve.js              serveur statique sans dépendance
 ├── src/
@@ -183,6 +192,10 @@ déclenche le jeu**.
 - Partage d'un morceau par lien (projet encodé dans l'URL).
 - Classement en ligne pour le Défi du jour.
 - Nouveaux instruments (clap = mines, pad = bouclier) et nouveaux boss par secteur.
+
+## Affiche
+
+<p align="center"><img src="assets/poster.jpg" alt="Affiche de Résonance : combats en rythme, compose ton arsenal, crée ton morceau" width="420" /></p>
 
 ## Licence
 
