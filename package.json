@@ -1,0 +1,12 @@
+{
+  "name": "resonance",
+  "version": "1.0.0",
+  "description": "Roguelite rythmique : ton arsenal est un séquenceur, ta bande-son est ton build.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node serve.js",
+    "test": "node --test tests/"
+  },
+  "license": "UNLICENSED"
+}

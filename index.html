@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Résonance</title>
+  <meta name="description" content="Roguelite rythmique : ton arsenal est un séquenceur, ta bande-son est ton build." />
+  <meta name="theme-color" content="#05040d" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2305040d'/%3E%3Cpath d='M16 5 L26 25 L16 20 L6 25 Z' fill='none' stroke='%2329f0ff' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Unbounded:wght@500;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <canvas id="game" aria-label="Arène de jeu"></canvas>
+  <div class="fx-vignette"></div>
+  <div class="fx-scan"></div>
+
+  <!-- ─────────────── HUD ─────────────── -->
+  <div id="hud" class="hidden">
+    <div class="hud-tl">
+      <div class="score"><span id="score">0</span></div>
+      <div class="combo" id="combo-wrap"><span id="combo">×1.0</span><small id="combo-count"></small></div>
+    </div>
+    <div class="hud-tc">
+      <div class="wave-label" id="wave-label">VAGUE 1</div>
+      <div class="sector-label" id="sector-label">Néon · La mineur</div>
+      <div class="boss-bar hidden" id="boss-bar"><div class="boss-name">LE MÉTRONOME</div><div class="boss-track"><div id="boss-fill"></div></div></div>
+    </div>
+    <div class="hud-tr">
+      <div class="hp" id="hp"></div>
+      <div class="bpm"><span id="bpm">118</span> BPM</div>
+    </div>
+    <div class="hud-bottom">
+      <div class="drop" id="drop">
+        <div class="drop-fill" id="drop-fill"></div>
+        <span class="drop-label" id="drop-label">DROP</span>
+      </div>
+      <div class="seq" id="seq-mini"></div>
+    </div>
+  </div>
+
+  <div id="banner" class="banner"><div class="banner-title" id="banner-title"></div><div class="banner-sub" id="banner-sub"></div></div>
+
+  <!-- ─────────────── Écran d'accueil (déclenche l'audio) ─────────────── -->
+  <section id="screen-splash" class="screen active">
+    <div class="splash">
+      <div class="splash-logo">RÉSONANCE</div>
+      <button class="btn btn-primary" id="btn-enter">Entrer</button>
+      <p class="hint">🎧 Casque recommandé — tout le son est synthétisé en direct</p>
+    </div>
+  </section>
+
+  <!-- ─────────────── Titre ─────────────── -->
+  <section id="screen-title" class="screen">
+    <div class="title-wrap">
+      <h1 class="logo" data-text="RÉSONANCE">RÉSONANCE</h1>
+      <p class="tagline">Ton arsenal est un séquenceur. Ta bande-son est ton build.</p>
+      <div class="profile" id="profile">
+        <div class="lvl"><small>NIV.</small><b id="pf-level">1</b></div>
+        <div class="xp"><div class="xp-bar"><div class="xp-fill" id="pf-xp"></div></div><span id="pf-xp-text"></span></div>
+        <div class="echoes" title="Échos — à dépenser au Studio">◈ <b id="pf-echoes">0</b></div>
+      </div>
+      <div class="menu">
+        <button class="btn btn-primary" id="btn-play">Jouer</button>
+        <button class="btn" id="btn-daily">Défi du jour <small id="daily-seed"></small></button>
+        <button class="btn btn-create" id="btn-create">♫ Studio de création</button>
+        <div class="menu-row three">
+          <button class="btn" id="btn-library">Discothèque <small id="lib-count"></small></button>
+          <button class="btn" id="btn-studio">Atelier <span class="badge hidden" id="studio-badge"></span></button>
+          <button class="btn" id="btn-achievements">Succès <small id="ach-count"></small></button>
+        </div>
+        <div class="menu-row">
+          <button class="btn btn-ghost" id="btn-how">Comment jouer</button>
+          <button class="btn btn-ghost" id="btn-options">Options</button>
+        </div>
+      </div>
+      <div class="best" id="best"></div>
+    </div>
+  </section>
+
+  <!-- ─────────────── Préparation : kit + intensité ─────────────── -->
+  <section id="screen-prep" class="screen">
+    <div class="panel wide">
+      <h2>Préparation</h2>
+      <h3 class="sub-h">Kit de départ</h3>
+      <div class="kits" id="kits"></div>
+      <div class="prep-bottom">
+        <div class="intensity">
+          <h3 class="sub-h">Intensité</h3>
+          <div class="int-row">
+            <button class="btn btn-small" id="int-minus" aria-label="Diminuer l'intensité">−</button>
+            <div class="int-value"><b id="int-value">0</b><small id="int-mult">gains ×1.0</small></div>
+            <button class="btn btn-small" id="int-plus" aria-label="Augmenter l'intensité">+</button>
+          </div>
+          <ul class="int-mods" id="int-mods"></ul>
+          <p class="hint" id="int-hint"></p>
+        </div>
+        <div class="prep-launch">
+          <h3 class="sub-h">Graine (facultatif)</h3>
+          <input id="seed-input" class="seed-input" maxlength="16" placeholder="ALÉATOIRE" spellcheck="false" autocomplete="off" aria-label="Graine personnalisée" />
+          <button class="btn btn-primary" id="btn-launch">Lancer la partie</button>
+          <button class="btn btn-ghost" data-back>Retour</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────── Studio : améliorations permanentes ─────────────── -->
+  <section id="screen-studio" class="screen">
+    <div class="panel wide">
+      <div class="panel-head"><h2>Atelier</h2><div class="echoes big">◈ <b id="studio-echoes">0</b></div></div>
+      <p class="hint">Les Échos se gagnent à chaque partie et avec les succès. Ces améliorations sont permanentes.</p>
+      <div class="gear" id="gear"></div>
+      <button class="btn" data-back>Retour</button>
+    </div>
+  </section>
+
+  <!-- ─────────────── Succès ─────────────── -->
+  <section id="screen-achievements" class="screen">
+    <div class="panel wide">
+      <div class="panel-head"><h2>Succès</h2><div class="ach-progress" id="ach-progress"></div></div>
+      <div class="lifetime" id="lifetime"></div>
+      <div class="ach-grid" id="ach-grid"></div>
+      <button class="btn" data-back>Retour</button>
+    </div>
+  </section>
+
+  <!-- ─────────────── Studio de création ─────────────── -->
+  <section id="screen-create" class="screen">
+    <div class="daw">
+      <header class="daw-top">
+        <button class="btn btn-ghost btn-small" id="cr-back">← Menu</button>
+        <input class="song-title" id="cr-title" maxlength="48" spellcheck="false" aria-label="Titre du morceau" />
+        <div class="transport">
+          <button class="btn btn-small" id="cr-loop">▶ Boucle</button>
+          <button class="btn btn-small btn-download" id="cr-listen">▶ Morceau</button>
+          <label class="bpm-ctl">BPM <input type="number" id="cr-bpm" min="70" max="180" step="1" /></label>
+        </div>
+        <div class="daw-actions">
+          <button class="btn btn-small" id="cr-save">Enregistrer</button>
+          <button class="btn btn-small btn-download" id="cr-wav">⤓ .wav</button>
+          <button class="btn btn-small btn-download" id="cr-mid">⤓ .mid</button>
+        </div>
+      </header>
+      <div class="daw-status" id="cr-status"></div>
+
+      <div class="daw-body">
+        <aside class="daw-side">
+          <h3 class="sub-h">Son</h3>
+          <label class="field">Style<select id="cr-style"></select></label>
+          <label class="field">Tonalité
+            <span class="row2"><select id="cr-key"></select><select id="cr-mode"></select></span>
+          </label>
+          <label class="field">Progression<select id="cr-prog"></select></label>
+          <div class="chords" id="cr-chords"></div>
+          <p class="hint small">Les mélodies sont écrites en <b>tons de l'accord</b> : change la tonalité ou la progression, tout le morceau suit sans fausse note.</p>
+        </aside>
+
+        <main class="daw-main">
+          <div class="pat-tabs">
+            <button class="tab" data-pat="A">Pattern A</button>
+            <button class="tab" data-pat="B">Pattern B</button>
+            <button class="btn btn-ghost btn-small" id="cr-copy">Copier A → B</button>
+          </div>
+          <div class="editor" id="cr-editor"></div>
+        </main>
+      </div>
+
+      <section class="arr">
+        <div class="arr-head">
+          <h3 class="sub-h">Arrangement</h3>
+          <span class="arr-len" id="cr-len"></span>
+          <select id="cr-template" aria-label="Appliquer une structure"></select>
+          <button class="btn btn-ghost btn-small" id="cr-add">+ Section</button>
+        </div>
+        <div class="arr-lane" id="cr-arr"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ─────────────── Discothèque ─────────────── -->
+  <section id="screen-library" class="screen">
+    <div class="panel wide">
+      <div class="panel-head"><h2>Discothèque</h2><button class="btn btn-small" id="lib-new">♫ Nouveau morceau</button></div>
+      <p class="hint">Chaque partie devient un morceau. Écoute-les, exporte-les, ou ouvre-les dans le Studio pour les retravailler.</p>
+      <div class="lib-list" id="lib-list"></div>
+      <div class="dl-status" id="lib-status"></div>
+      <button class="btn" data-back>Retour</button>
+    </div>
+  </section>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <!-- ─────────────── Comment jouer ─────────────── -->
+  <section id="screen-how" class="screen">
+    <div class="panel wide">
+      <h2>Comment jouer</h2>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="how-icon">♪</div>
+          <h3>Tes armes sont des pistes</h3>
+          <p>Chaque instrument du séquenceur est une arme. Une note sur la grille = un tir, <b>exactement sur le temps</b>. Tu ne tires pas : tu joues.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">⌗</div>
+          <h3>Compose ton build</h3>
+          <p>Après chaque vague, choisis une amélioration. Certaines te laissent <b>placer toi-même des notes</b> sur la grille — tu entends le résultat en direct.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">⟫</div>
+          <h3>Dash dans le temps</h3>
+          <p>Un dash déclenché <b>pile sur un temps</b> est PARFAIT : invulnérabilité prolongée, traînée offensive, recharge divisée par deux, +5 combo.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">◉</div>
+          <h3>Le DROP</h3>
+          <p>Ramasse les éclats pour remplir la jauge. Le DROP attend le prochain <b>« 1 »</b> de la mesure, puis frappe tout l'écran et double tes dégâts.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">!</div>
+          <h3>Écoute les ennemis</h3>
+          <p>Ils agissent eux aussi en rythme et se télégraphient : un cercle lumineux annonce une attaque sur le temps suivant.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">◈</div>
+          <h3>Progresse entre les parties</h3>
+          <p>Chaque partie rapporte de l'<b>XP</b> (de nouveaux kits de départ à débloquer) et des <b>Échos</b> à dépenser au <b>Studio</b> en améliorations permanentes. Monte l'<b>Intensité</b> pour plus de défi et plus de gains.</p>
+        </div>
+        <div class="how-card keys">
+          <h3>Contrôles</h3>
+          <ul>
+            <li><kbd>ZQSD</kbd>/<kbd>WASD</kbd>/<kbd>↑↓←→</kbd> se déplacer</li>
+            <li><kbd>Souris</kbd> viser</li>
+            <li><kbd>Espace</kbd>/<kbd>Shift</kbd> dash</li>
+            <li><kbd>E</kbd>/<kbd>Clic droit</kbd> DROP</li>
+            <li><kbd>Échap</kbd>/<kbd>P</kbd> pause</li>
+          </ul>
+        </div>
+      </div>
+      <button class="btn" data-back>Retour</button>
+    </div>
+  </section>
+
+  <!-- ─────────────── Options ─────────────── -->
+  <section id="screen-options" class="screen">
+    <div class="panel">
+      <h2>Options</h2>
+      <label class="opt"><span>Volume</span><input type="range" id="opt-volume" min="0" max="1" step="0.01" /></label>
+      <label class="opt"><span>Tremblement d'écran</span><input type="checkbox" id="opt-shake" /></label>
+      <label class="opt"><span>Réduire les flashs</span><input type="checkbox" id="opt-flash" /></label>
+      <label class="opt"><span>Bloom (halo lumineux)</span><input type="checkbox" id="opt-bloom" /></label>
+      <button class="btn" data-back>Retour</button>
+    </div>
+  </section>
+
+  <!-- ─────────────── Améliorations ─────────────── -->
+  <section id="screen-upgrade" class="screen">
+    <div class="upgrade-wrap">
+      <h2 class="up-title" id="up-title">Compose la suite</h2>
+      <p class="up-sub" id="up-sub">Choisis une amélioration — ton morceau continue de jouer.</p>
+      <div class="cards" id="cards"></div>
+      <button class="btn btn-small hidden" id="btn-reroll">Relancer les offres <small id="reroll-count"></small></button>
+      <div class="placer hidden" id="placer">
+        <div class="placer-info"><span id="placer-text">Place une note</span></div>
+        <div class="seq seq-big" id="seq-big"></div>
+        <div class="chord-now hidden" id="chord-now"></div>
+        <div class="roll hidden" id="roll"></div>
+        <p class="hint" id="placer-hint">Survole une case pour l'entendre, clique pour y placer la note.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────── Pause ─────────────── -->
+  <section id="screen-pause" class="screen">
+    <div class="panel">
+      <h2>Pause</h2>
+      <div class="menu">
+        <button class="btn btn-primary" id="btn-resume">Reprendre</button>
+        <button class="btn" id="btn-pause-download">⤓ Morceau en cours (.wav)</button>
+        <button class="btn" id="btn-pause-options">Options</button>
+        <button class="btn btn-ghost" id="btn-quit">Abandonner</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────── Fin de partie ─────────────── -->
+  <section id="screen-over" class="screen">
+    <div class="panel wide over">
+      <h2 class="over-title">Fin du morceau</h2>
+      <div class="new-best hidden" id="new-best">Nouveau record</div>
+      <div class="over-score" id="over-score">0</div>
+      <div class="stats" id="stats"></div>
+      <div class="rewards" id="rewards">
+        <div class="rw-level">
+          <div class="lvl"><small>NIV.</small><b id="rw-level">1</b></div>
+          <div class="xp"><div class="xp-bar"><div class="xp-fill" id="rw-xp"></div></div><span id="rw-xp-text"></span></div>
+        </div>
+        <div class="rw-gains" id="rw-gains"></div>
+        <div class="rw-list" id="rw-list"></div>
+      </div>
+      <h3 class="compo-title">Ta composition — dernier pattern</h3>
+      <div class="seq seq-big readonly" id="seq-final"></div>
+      <div class="song-card" id="over-song">
+        <div class="song-head">
+          <input class="song-title" id="song-title" maxlength="48" spellcheck="false" aria-label="Titre du morceau" />
+          <span class="song-saved" id="song-saved">Enregistré dans la discothèque</span>
+        </div>
+        <div class="song-meta" id="song-meta"></div>
+        <div class="song-structure" id="song-structure"></div>
+        <div class="download-row">
+          <button class="btn btn-download" id="btn-song-play">▶ Écouter</button>
+          <button class="btn btn-download" id="btn-download">⤓ Audio <small>.wav</small></button>
+          <button class="btn btn-download" id="btn-download-midi">⤓ Partition <small>.mid</small></button>
+          <button class="btn btn-ghost" id="btn-song-edit">♫ Retravailler dans le Studio</button>
+        </div>
+        <div class="dl-status" id="dl-status"></div>
+      </div>
+      <div class="menu-row">
+        <button class="btn btn-primary" id="btn-retry">Rejouer la graine</button>
+        <button class="btn" id="btn-new">Nouvelle partie</button>
+        <button class="btn" id="btn-over-studio">Atelier</button>
+        <button class="btn btn-ghost" id="btn-menu">Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
