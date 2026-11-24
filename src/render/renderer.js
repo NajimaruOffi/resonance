@@ -19,10 +19,11 @@ export class Renderer {
 
   resize() {
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = window.innerWidth, h = window.innerHeight;
+    // fenêtre de taille nulle (onglet caché, panneau replié) : on garde au moins 1 px
+    const w = Math.max(1, window.innerWidth), h = Math.max(1, window.innerHeight);
     this.w = w; this.h = h;
-    this.canvas.width = Math.floor(w * this.dpr);
-    this.canvas.height = Math.floor(h * this.dpr);
+    this.canvas.width = Math.max(1, Math.floor(w * this.dpr));
+    this.canvas.height = Math.max(1, Math.floor(h * this.dpr));
     this.canvas.style.width = w + 'px';
     this.canvas.style.height = h + 'px';
     this.bloom.width = Math.max(1, Math.floor(w / 4));
@@ -118,6 +119,7 @@ export class Renderer {
 
   _bloomPass() {
     const ctx = this.ctx, b = this.bctx;
+    if (this.canvas.width < 1 || this.canvas.height < 1 || this.bloom.width < 1 || this.bloom.height < 1) return;
     b.globalCompositeOperation = 'source-over';
     b.filter = this.hasFilter ? 'blur(3px) brightness(1.1)' : 'none';
     b.clearRect(0, 0, this.bloom.width, this.bloom.height);

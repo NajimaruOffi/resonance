@@ -46,20 +46,28 @@ document.addEventListener('visibilitychange', () => {
 window.__resonance = { game, audio, ui, studio };
 
 let last = performance.now();
+let lastError = 0;
 function loop(now) {
+  // La frame suivante est demandée d'abord : une erreur ponctuelle ne fige jamais le jeu.
+  requestAnimationFrame(loop);
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
-  game.setViewport(renderer.w, renderer.h);
+  try {
+    if (renderer.w !== Math.max(1, window.innerWidth) || renderer.h !== Math.max(1, window.innerHeight)) renderer.resize();
+    game.setViewport(renderer.w, renderer.h);
 
-  if (input.pressed('Escape') || input.pressed('KeyP')) {
-    if (ui.screen === 'options' && game.paused) ui.show('pause');
-    else ui.togglePause();
+    if (input.pressed('Escape') || input.pressed('KeyP')) {
+      if (ui.screen === 'options' && game.paused) ui.show('pause');
+      else ui.togglePause();
+    }
+
+    game.frame(dt);
+    renderer.render(game, input.mouse, audio.getSpectrum(), ui.screen === 'game' && game.mode === 'playing');
+    ui.frame();
+  } catch (err) {
+    if (now - lastError > 5000) { lastError = now; console.error(err); }
+  } finally {
+    input.endFrame();
   }
-
-  game.frame(dt);
-  renderer.render(game, input.mouse, audio.getSpectrum(), ui.screen === 'game' && game.mode === 'playing');
-  ui.frame();
-  input.endFrame();
-  requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
